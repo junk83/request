@@ -6,7 +6,7 @@ require_once "RequestController.php";
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
     //GETパラメータにactionが未設定の場合はnullとする
-    $action = isset($_GET['action']) ? htmlspecialchars($_GET['action']) : null;
+    $action = isset($_GET['action']) ? $_GET['action'] : null;
 
     $request = new RequestController();
 
@@ -19,15 +19,15 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
         //メソッドが存在しない場合はpageNotFoundメソッドを呼び出す
         $request->pageNotFound();
     }
-    //actionパラメータがheader、footer、pageNotFoundの場合はpageNotFoundメソッドを呼び出す
-    elseif($action == 'header' || $action == 'footer' || $action == 'pageNotFound')
+    //actioパラメータがactionから始まる場合は該当メソッドを呼び出す
+    elseif(strpos($action, "action") === 0)
     {
-        $request->pageNotFound();
+        $request->$action();
     }
     else
     {
-        //メソッドが存在する場合は呼び出す
-        $request->$action();
+        //actionから始まっていない場合はpageNotFoundメソッドを呼び出す
+        $request->pageNotFound();
     }
 
     //footerメソッドの呼び出し
@@ -36,11 +36,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     //レスポンスの取得
     $responses = $request->getResponse();
 
-    //レスポンスの出力
-    foreach($responses as $response)
-    {
-        echo $response.'<br>';
-    }
+    //レスポンスの出力    {
+    echo implode('<br>', $responses);
 }
 
  ?>
